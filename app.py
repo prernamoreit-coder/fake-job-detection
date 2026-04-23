@@ -17,8 +17,8 @@ if st.button("Predict"):
     # 🔥 Create FULL dataframe with ALL required columns
     input_df = pd.DataFrame([{
     "job_id": 0,
-    "title": job_title,
-    "description": job_desc,
+    "title": title,
+    "description": description,
     "telecommuting": 0,
     "has_company_logo": 0,
     "has_questions": 0,
