@@ -1,31 +1,29 @@
 import streamlit as st
 import pickle
+import pandas as pd
 
-# 🔷 Load model and vectorizer
+# Load model and transformer
 model = pickle.load(open("model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+transformer = pickle.load(open("transformer.pkl", "rb"))
 
-# 🔷 App title
 st.title("Fake Job Detection System")
-st.write("Enter job details below:")
 
-# 🔷 User inputs
 title = st.text_input("Job Title")
 description = st.text_area("Job Description")
 
-# 🔷 Predict button
 if st.button("Predict"):
 
-    # Combine inputs
-    input_data = [title + " " + description]
+    # Create dataframe (IMPORTANT for ColumnTransformer)
+    input_df = pd.DataFrame({
+        "title": [title],
+        "description": [description]
+    })
 
-    # Convert text → numerical
-    input_transformed = vectorizer.transform(input_data)
+    # Transform using SAME transformer
+    input_transformed = transformer.transform(input_df)
 
-    # Prediction
     prediction = model.predict(input_transformed)
 
-    # Output
     if prediction[0] == 1:
         st.error("⚠️ Fake Job Posting")
     else:
