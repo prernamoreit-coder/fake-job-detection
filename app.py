@@ -8,30 +8,40 @@ transformer = pickle.load(open("transformer.pkl", "rb"))
 
 st.title("Fake Job Detection System")
 
+# User inputs (keep simple)
 title = st.text_input("Job Title")
 description = st.text_area("Job Description")
 
 if st.button("Predict"):
 
-    # Create dataframe (IMPORTANT for ColumnTransformer)
-    input_df = pd.DataFrame({
-    "title": [title],
-    "location": [""],
-    "department": [""],
-    "company_profile": [""],
-    "description": [description],
-    "requirements": [""],
-    "benefits": [""],
-    "employment_type": [""],
-    "required_experience": [""],
-    "required_education": [""],
-    "industry": [""],
-    "function": [""]
-})
+    # 🔥 Create FULL dataframe with ALL required columns
+    input_df = pd.DataFrame([{
+        "title": title,
+        "location": "",
+        "department": "",
+        "company_profile": "",
+        "description": description,
+        "requirements": "",
+        "benefits": "",
+        "employment_type": "",
+        "required_experience": "",
+        "required_education": "",
+        "industry": "",
+        "function": ""
+    }])
 
-    # Transform using SAME transformer
+    # 🔥 FORCE correct column order (VERY IMPORTANT)
+    expected_columns = [
+        "title", "location", "department", "company_profile",
+        "description", "requirements", "benefits",
+        "employment_type", "required_experience",
+        "required_education", "industry", "function"
+    ]
+
+    input_df = input_df[expected_columns]
+
+    # Transform + Predict
     input_transformed = transformer.transform(input_df)
-
     prediction = model.predict(input_transformed)
 
     if prediction[0] == 1:
