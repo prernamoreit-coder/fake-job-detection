@@ -15,9 +15,19 @@ if st.button("Predict"):
 
     # Create dataframe (IMPORTANT for ColumnTransformer)
     input_df = pd.DataFrame({
-        "title": [title],
-        "description": [description]
-    })
+    "title": [title],
+    "location": [""],
+    "department": [""],
+    "company_profile": [""],
+    "description": [description],
+    "requirements": [""],
+    "benefits": [""],
+    "employment_type": [""],
+    "required_experience": [""],
+    "required_education": [""],
+    "industry": [""],
+    "function": [""]
+})
 
     # Transform using SAME transformer
     input_transformed = transformer.transform(input_df)
