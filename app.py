@@ -16,19 +16,14 @@ if st.button("Predict"):
 
     # 🔥 Create FULL dataframe with ALL required columns
     input_df = pd.DataFrame([{
-        "title": title,
-        "location": "",
-        "department": "",
-        "company_profile": "",
-        "description": description,
-        "requirements": "",
-        "benefits": "",
-        "employment_type": "",
-        "required_experience": "",
-        "required_education": "",
-        "industry": "",
-        "function": ""
-    }])
+    "job_id": 0,
+    "title": job_title,
+    "description": job_desc,
+    "telecommuting": 0,
+    "has_company_logo": 0,
+    "has_questions": 0,
+    "salary_range": "unknown"
+}])
 
     # 🔥 FORCE correct column order (VERY IMPORTANT)
     expected_columns = [
