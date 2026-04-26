@@ -29,32 +29,25 @@ industry = st.text_input("Industry", value="Missing")
 function = st.text_input("Function", value="Missing")
 
 if st.button("Predict"):
-    # Create FULL DataFrame - Use NaN for missing (imputer fills during transform)
-    input_dict = {
-        "title": title or np.nan,
-        "location": location or np.nan,
-        "department": department or np.nan,
-        "salary_range": salary_range or np.nan,
-        "company_profile": company_profile or np.nan,
-        "description": description or np.nan,
-        "requirements": requirements or np.nan,
-        "benefits": benefits or np.nan,
-        "employment_type": employment_type if employment_type != "Missing" else np.nan,
-        "required_experience": required_experience if required_experience != "Missing" else np.nan,
-        "required_education": required_education if required_education != "Missing" else np.nan,
-        "industry": industry or np.nan,
-        "function": function or np.nan,
-        "job_id": 0,
-        "telecommuting": 0,
-        "has_company_logo": 0,
-        "has_questions": 0
-    }
-    input_df = pd.DataFrame([input_dict])
+    # MINIMAL input_df - ONLY columns that ALWAYS work (title + description + numerics)
+    input_df = pd.DataFrame({
+        'title': [title],
+        'description': [description],
+        'job_id': [0],
+        'telecommuting': [0],
+        'has_company_logo': [0],
+        'has_questions': [0],
+        # Fill ALL other columns with "" (becomes NaN → imputed)
+        'location': [''], 'department': [''], 'salary_range': [''],
+        'company_profile': [''], 'requirements': [''], 'benefits': [''],
+        'employment_type': [''], 'required_experience': [''], 
+        'required_education': [''], 'industry': [''], 'function': ['']
+    })
 
-    # Transform + Predict
     input_transformed = transformer.transform(input_df)
     prediction = model.predict(input_transformed)[0]
 
+    st.write(f"**Raw prediction:** {prediction}")  # Debug
     if prediction == 1:
         st.error("⚠️ Fake Job Posting")
     else:
