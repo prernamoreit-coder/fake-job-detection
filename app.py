@@ -55,7 +55,7 @@ if st.button("🚀 Predict", type="primary"):
         st.metric("Confidence", f"{max(probs)*100:.0f}%")
         st.metric("Fake Prob", f"{probs[1]*100:.0f}%")
     
-    st.caption("🎓 TF-IDF + Logistic Regression")
+    st.caption("🎓 DSBDA Mini Project")
 
 # Balloons ONLY after prediction
 if 'predicted' not in st.session_state:
