@@ -25,28 +25,29 @@ industry = st.text_input("Industry", value="Missing")
 function = st.text_input("Function", value="Missing")
 
 if st.button("Predict"):
-    # Create FULL DataFrame with ALL 17 required columns (match notebook preprocessing)
-    input_df = pd.DataFrame({
-        "title": [title],
-        "location": [location],
-        "department": [department],
-        "salary_range": [salary_range],  # Matches dataset casing
-        "company_profile": [company_profile],
-        "description": [description],
-        "requirements": [requirements],
-        "benefits": [benefits],
-        "employment_type": [employment_type],
-        "required_experience": [required_experience],
-        "required_education": [required_education],
-        "industry": [industry],
-        "function": [function],
-        "job_id": [0],
-        "telecommuting": [0],
-        "has_company_logo": [0],
-        "has_questions": [0]
-    })
+    # Create FULL DataFrame - Use NaN for missing (imputer fills during transform)
+    input_dict = {
+        "title": title or np.nan,
+        "location": location or np.nan,
+        "department": department or np.nan,
+        "salary_range": salary_range or np.nan,
+        "company_profile": company_profile or np.nan,
+        "description": description or np.nan,
+        "requirements": requirements or np.nan,
+        "benefits": benefits or np.nan,
+        "employment_type": employment_type if employment_type != "Missing" else np.nan,
+        "required_experience": required_experience if required_experience != "Missing" else np.nan,
+        "required_education": required_education if required_education != "Missing" else np.nan,
+        "industry": industry or np.nan,
+        "function": function or np.nan,
+        "job_id": 0,
+        "telecommuting": 0,
+        "has_company_logo": 0,
+        "has_questions": 0
+    }
+    input_df = pd.DataFrame([input_dict])
 
-    # Transform + Predict (no manual reordering needed; ColumnTransformer handles column names)
+    # Transform + Predict
     input_transformed = transformer.transform(input_df)
     prediction = model.predict(input_transformed)[0]
 
