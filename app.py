@@ -3,75 +3,66 @@ import pickle
 import pandas as pd
 import numpy as np
 
-# Load model and transformer
 @st.cache_resource
 def load_models():
-    model = pickle.load(open("model.pkl", "rb"))
-    transformer = pickle.load(open("transformer.pkl", "rb"))
-    return model, transformer
+    return pickle.load(open("model.pkl", "rb")), pickle.load(open("transformer.pkl", "rb"))
 
 model, transformer = load_models()
 
-st.title("🚀 Fake Job Detection System")
+st.title("🚀 Fake Job Detection System - 98% Accurate")
 
-col1, col2 = st.columns([3,1])
-title = col1.text_input("**Job Title**", key="title")
-description = col1.text_area("**Job Description**", height=120, key="desc")
-has_logo = col2.checkbox("✅ Company Logo?", value=False)
+col1, col2 = st.columns([4, 1])
+with col1:
+    title = st.text_input("**Job Title**", placeholder="e.g. Senior Python Developer")
+    description = st.text_area("**Job Description**", height=100, 
+                              placeholder="Paste full job posting here...")
+with col2:
+    has_logo = st.checkbox("Has logo?", value=True)
 
-if st.button("🔍 Predict", type="primary") and title.strip() and description.strip():
+if st.button("🔍 DETECT FAKE JOB", type="primary") and title and description:
     
-    # EXACT column order + types from your notebook training data
-    input_data = {
+    # EXACT 17 columns with NaN for missing (matches notebook preprocessing)
+    input_df = pd.DataFrame([{
         'title': title,
-        'location': '',
-        'department': '',
-        'salary_range': '',
-        'company_profile': '',
+        'location': np.nan,
+        'department': np.nan,
+        'salary_range': np.nan,
+        'company_profile': np.nan,
         'description': description,
-        'requirements': '',
-        'benefits': '',
+        'requirements': np.nan,
+        'benefits': np.nan,
+        'employment_type': np.nan,
+        'required_experience': np.nan,
+        'required_education': np.nan,
+        'industry': np.nan,
+        'function': np.nan,
         'telecommuting': 0,
         'has_company_logo': 1 if has_logo else 0,
         'has_questions': 0,
-        'employment_type': '',
-        'required_experience': '',
-        'required_education': '',
-        'industry': '',
-        'function': '',
         'job_id': 0
-    }
+    }])
     
-    input_df = pd.DataFrame([input_data])
+    st.info(f"✅ Input ready: {input_df.shape}")
     
-    # Ensure correct dtypes (matches training)
-    for col in input_df.columns:
-        if col in ['telecommuting', 'has_company_logo', 'has_questions', 'job_id']:
-            input_df[col] = pd.to_numeric(input_df[col], errors='coerce').fillna(0).astype(int)
+    input_transformed = transformer.transform(input_df)
+    prediction = model.predict(input_transformed)[0]
+    probs = model.predict_proba(input_transformed)[0]
+    confidence = max(probs) * 100
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if prediction == 1:
+            st.error("🔴 **FAKE JOB POSTING**")
         else:
-            input_df[col] = input_df[col].astype(str)
-    
-    st.info(f"📊 Input shape: {input_df.shape}")
-    
-    try:
-        input_transformed = transformer.transform(input_df)
-        prediction = model.predict(input_transformed)[0]
-        prob = model.predict_proba(input_transformed)[0]
-        confidence = max(prob) * 100
+            st.success("🟢 **LEGITIMATE JOB**")
+    with col2:
+        st.metric("Confidence", f"{confidence:.0f}%")
+    with col3:
+        st.metric("Fake Probability", f"{probs[1]*100:.0f}%")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if prediction == 1:
-                st.error("❌ **FAKE JOB** ⚠️")
-            else:
-                st.success("✅ **REAL JOB** 🎉")
-        with col2:
-            st.metric("Confidence", f"{confidence:.0f}%")
-            
-        st.caption("💡 Powered by Decision Tree (98% accurate on test set)")
-        
-    except Exception as e:
-        st.error(f"❌ Transform error: {str(e)[:200]}...")
-        st.code(str(input_df.dtypes))
+    # Key features that mattered
+    st.caption(f"💡 Analyzed: title + description + {'logo' if has_logo else 'no logo'}")
+    
 else:
-    st.warning("👆 Fill title + description")
+    st.info("👆 Enter title + description to scan!")
+    st.caption("Built for DSBDM Mini Project - DecisionTree 98% accuracy[file:1]")
