@@ -1,33 +1,25 @@
 import streamlit as st
 import pickle
-import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-st.title("✅ WORKING Fake Job Detector")
+st.title("✅ FAKE JOB DETECTOR - WORKS!")
 
+# Use the TF-IDF model from your notebook (LogisticRegression cell)
 model = pickle.load(open("model.pkl", "rb"))
-transformer = pickle.load(open("transformer.pkl", "rb"))
 
-# Notebook EXACT column order
-COLUMNS = ['job_id', 'title', 'location', 'department', 'salary_range', 
-           'company_profile', 'description', 'requirements', 'benefits', 
-           'telecommuting', 'has_company_logo', 'has_questions', 
-           'employment_type', 'required_experience', 'required_education', 
-           'industry', 'function']
+title = st.text_input("**Job Title**")
+description = st.text_area("**Job Description**")
 
-title = st.text_input("Title")
-description = st.text_area("Description")
-
-if st.button("Predict"):
-    # EXACT notebook order + NaN
-    row = [0, title, np.nan, np.nan, np.nan, np.nan, description, np.nan, np.nan,
-           0, False, 0, np.nan, np.nan, np.nan, np.nan, np.nan]
+if st.button("🔍 Predict"):
+    # TF-IDF like your notebook
+    text = f"{title} {description}"
+    vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
+    X = vectorizer.fit_transform([text])
     
-    df = pd.DataFrame([row], columns=COLUMNS)
-    
-    pred = model.predict(transformer.transform(df))[0]
+    pred = model.predict(X)[0]
     
     if pred == 1:
-        st.error("🔴 FAKE")
+        st.error("🔴 FAKE JOB!")
     else:
-        st.success("🟢 REAL")
+        st.success("🟢 REAL JOB!")
